@@ -75,11 +75,13 @@ class MarkovChain:
                 for note in columns[:]:
                     k=to_notes[note]
                     k=k/self.sums[from_note]
-                    k=round(k,2)
-                    if((k*100)%10==0):
+                    k=round(k,3)
+                    if((k*1000)%100==0):
                         f.write(str(k)+"     ")
-                    else:
+                    elif((k*1000)%10==0):
                         f.write(str(k)+"    ")
+                    else:
+                        f.write(str(k)+"   ")
                 f.write('\n')
     def matrix(self):
         def _col(string): return '{:<8}'.format(string)
