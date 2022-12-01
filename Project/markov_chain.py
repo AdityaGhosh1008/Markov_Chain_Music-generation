@@ -1,13 +1,10 @@
 
 from collections import Counter, defaultdict, namedtuple
-
 import random
 
 Note = namedtuple('Note', ['note', 'duration'])
 
-
 class MarkovChain:
-
     def __init__(self):
         self.chain = defaultdict(Counter)
         self.sums = defaultdict(int)

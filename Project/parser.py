@@ -1,9 +1,6 @@
 
 import mido
-import argparse
-
 from markov_chain import MarkovChain
-
 
 class Parser:
 
@@ -65,20 +62,8 @@ class Parser:
         This method takes a tick count and converts it to a time in
         milliseconds, bucketing it to the nearest 250 milliseconds.
         """
-        try:
-            ms = ((ticks / self.ticks_per_beat) * self.tempo) / 1000
-            return int(ms - (ms % 250) + 250)
-        except TypeError:
-            raise TypeError(
-                "Could not read a tempo and ticks_per_beat from midi")
+        ms = ((ticks / self.ticks_per_beat) * self.tempo) / 1000
+        return int(ms)
 
     def get_chain(self):
         return self.markov_chain
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("input_file", help="The midi file input")
-    args = parser.parse_args()
-    print(Parser(args.input_file).get_chain())
-    print('No issues parsing {}'.format(args.input_file))

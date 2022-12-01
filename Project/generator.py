@@ -14,7 +14,6 @@ class Chain_Factory:
     def create_track(self):
         track = mido.MidiTrack()
         last_note = None
-
         for i in range(150):
             new_note = self.markov_chain.get_next(last_note)
             message = [
@@ -23,8 +22,8 @@ class Chain_Factory:
                 mido.Message('note_off', note=new_note.note, velocity=0,
                              time=new_note.duration)
             ]
+            last_note = new_note
             track.extend(message)
-
         return track
 
     def generate(self, filename):
