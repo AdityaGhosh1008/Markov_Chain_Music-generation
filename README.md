@@ -18,7 +18,7 @@ To play output audio
 
 To see transition matrix
 1) open terminal
-2) run command ".\transitionmatrix.txt"
+2) run command "./transitionmatrix.txt"
 note: as the input midi file remains same the transition matrix will remain not change with new output
 note: same method can be used for seeing countmatrix 
 
