@@ -3,7 +3,7 @@ from markov_chain import MarkovChain
 
 import mido
 import sys
-from parser import Parser
+from p_parser import Parser
 
 
 class Chain_Factory:
