@@ -38,17 +38,14 @@ class Chain_Factory:
 
 if __name__ == "__main__":
     
-    max_args = int(sys.argv[1])
-    chain = Parser(sys.argv[2]).get_chain()
-    arg_no = 3
-
-    while arg_no < max_args + 1:
-        new_chain = Parser(sys.argv[arg_no]).get_chain()
-        chain.merge(new_chain)
-        arg_no = arg_no + 1
-        print('Generated markov chain')
+    max_args = 1
+    chain = Parser("midi/river_flows.mid").get_chain()
+    # arg_no = 3
+    # while arg_no < max_args + 1:
+    #     new_chain = Parser(sys.argv[arg_no]).get_chain()
+    #     chain.merge(new_chain)
+    #     arg_no = arg_no + 1
+    #     print('Generated markov chain')
     factory = Chain_Factory(chain)
-
-    if max_args == 1:
-        factory.generate(sys.argv[arg_no])
+    factory.generate("midi/out.mid")
     chain.matrix()
