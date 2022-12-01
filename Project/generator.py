@@ -1,8 +1,4 @@
-
-from markov_chain import MarkovChain
-
 import mido
-import sys
 from p_parser import Parser
 
 
@@ -14,7 +10,7 @@ class Chain_Factory:
     def create_track(self):
         track = mido.MidiTrack()
         last_note = None
-        for i in range(150):
+        for i in range(40):
             new_note = self.markov_chain.get_next(last_note)
             message = [
                 mido.Message('note_on', note=new_note.note, velocity=127,
