@@ -5,6 +5,7 @@ To run file
 1) open terminal
 2) install mido library using "pip install mido"
 2) run command "python main.py"
+
 note: everytime the file is run the output file changes 
 
 #####################################################################
@@ -19,7 +20,9 @@ To play output audio
 To see transition matrix
 1) open terminal
 2) run command "./transitionmatrix.txt"
+
 note: as the input midi file remains same the transition matrix will remain not change with new output
+
 note: same method can be used for seeing countmatrix 
 
 ####################################################################
