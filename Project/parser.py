@@ -7,7 +7,7 @@ from markov_chain import MarkovChain
 
 class Parser:
 
-    def __init__(self, filename, verbose=False):
+    def __init__(self, filename):
         """
         This is the constructor for a Serializer, which will serialize
         a midi given the filename and generate a markov chain of the
@@ -22,9 +22,9 @@ class Parser:
         # ticks_per_beat.
         self.ticks_per_beat = None
         self.markov_chain = MarkovChain()
-        self._parse(verbose=verbose)
+        self._parse()
 
-    def _parse(self, verbose=False):
+    def _parse(self):
         """
         This function handles the reading of the midi and chunks the
         notes into sequenced "chords", which are inserted into the
@@ -36,8 +36,6 @@ class Parser:
         current_chunk = []
         for track in midi.tracks:
             for message in track:
-                if verbose:
-                    print(message)
                 if message.type == "set_tempo":
                     self.tempo = message.tempo
                 elif message.type == "note_on":
@@ -82,5 +80,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file", help="The midi file input")
     args = parser.parse_args()
-    print(Parser(args.input_file, verbose=False).get_chain())
+    print(Parser(args.input_file).get_chain())
     print('No issues parsing {}'.format(args.input_file))
