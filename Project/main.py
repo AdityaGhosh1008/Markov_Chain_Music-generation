@@ -58,17 +58,39 @@ class MarkovChain:
 
     def get_chain(self):
         return {k: dict(v) for k, v in self.chain.items()}
-
+    def transition_matrix(self):
+        def _col(string): return '{:<8}'.format(string)
+        def _note(note): return '{}:{}'.format(note.note,note.duration)
+        columns = []
+        for from_note, to_notes in self.chain.items():
+            for note in to_notes:
+                if note not in columns:
+                    columns.append(note)
+        with open('transitionmatrix.txt', 'w') as f:
+            f.write("        ")
+            f.write(''.join([_col(_note(note)) for note in columns[:]]))
+            f.write('\n')
+            for from_note, to_notes in self.chain.items():
+                f.write(_col(from_note))
+                for note in columns[:]:
+                    k=to_notes[note]
+                    k=k/self.sums[from_note]
+                    k=round(k,2)
+                    if((k*100)%10==0):
+                        f.write(str(k)+"     ")
+                    else:
+                        f.write(str(k)+"    ")
+                f.write('\n')
     def matrix(self):
-        def _col(string): return '{:<4}'.format(string)
-        def _note(note): return '{}'.format(note.note)
+        def _col(string): return '{:<8}'.format(string)
+        def _note(note): return '{}:{}'.format(note.note,note.duration)
         columns = []
         for from_note, to_notes in self.chain.items():
             for note in to_notes:
                 if note not in columns:
                     columns.append(note)
         with open('countmatrix.txt', 'w') as f:
-            f.write("    ")
+            f.write("        ")
             f.write(''.join([_col(_note(note)) for note in columns[:]]))
             f.write('\n')
             for from_note, to_notes in self.chain.items():
@@ -92,19 +114,22 @@ class Parser:
         self.ticks = midi.ticks_per_beat
         notes_already_processed = []
         notes_currently_being_processed = []
-        for track in midi.tracks:
-            for note in track:
-                if note.type == "set_tempo":
-                    self.tempo = note.tempo
-                elif note.type == "note_on":
-                    if note.time == 0:
-                        notes_currently_being_processed.append(note.note)
-                    else:
-                        self.add_new_node_to_markov_chain(notes_already_processed,
-                                                          notes_currently_being_processed,
-                                                          note.time)
-                        notes_already_processed = notes_currently_being_processed
-                        notes_currently_being_processed = []
+        with open('data.txt', 'w') as f:
+            for track in midi.tracks:
+                for note in track:
+                    f.write(str(note))
+                    f.write('\n')
+                    if note.type == "set_tempo":
+                        self.tempo = note.tempo
+                    elif note.type == "note_on":
+                        if note.time == 0:
+                            notes_currently_being_processed.append(note.note)
+                        else:
+                            self.add_new_node_to_markov_chain(notes_already_processed,
+                                                              notes_currently_being_processed,
+                                                              note.time)
+                            notes_already_processed = notes_currently_being_processed
+                            notes_currently_being_processed = []
 
     def add_new_node_to_markov_chain(self, notes_already_processed, notes_currently_being_processed, time):
         for n1 in notes_already_processed:
@@ -131,3 +156,4 @@ if __name__ == "__main__":
     factory = Chain_Factory(main_markov_chain)
     factory.create_new_mid_output_file("midi/out.mid")
     main_markov_chain.matrix()
+    main_markov_chain.transition_matrix()
