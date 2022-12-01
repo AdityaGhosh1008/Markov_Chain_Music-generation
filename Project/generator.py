@@ -15,7 +15,7 @@ class Chain_Factory:
         track = mido.MidiTrack()
         last_note = None
 
-        for i in range(200):
+        for i in range(150):
             new_note = self.markov_chain.get_next(last_note)
             message = [
                 mido.Message('note_on', note=new_note.note, velocity=127,
