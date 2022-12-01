@@ -9,19 +9,9 @@ class MarkovChain:
         self.chain = defaultdict(Counter)
         self.sums = defaultdict(int)
 
-    @staticmethod
-    def create_from_dict(dict):
-        m = MarkovChain()
-        for from_note, to_notes in dict.items():
-            for k, v in to_notes.items():
-                m.add(from_note, k, v)
-        return m
-
-    def serialize(self, note, duration):
-        return Note(note, duration)
-
     def add(self, from_note, to_note, duration):
-        self.chain[from_note][self.serialize(to_note, duration)] += 1
+        new_note = Note(to_note, duration)
+        self.chain[from_note][new_note] += 1
         self.sums[from_note] += 1
 
     def get_next(self, seed_note):
@@ -33,14 +23,6 @@ class MarkovChain:
             next_note_counter -= frequency
             if next_note_counter <= 0:
                 return note
-
-    def merge(self, other):
-        assert isinstance(other, MarkovChain)
-        self.sums = defaultdict(int)
-        for from_note, to_notes in other.chain.items():
-            self.chain[from_note].update(to_notes)
-        for from_note, to_notes in self.chain.items():
-            self.sums[from_note] = sum(self.chain[from_note].values())
 
     def get_chain(self):
         return {k: dict(v) for k, v in self.chain.items()}
