@@ -1,4 +1,4 @@
-import mido
+import mido as md
 from collections import Counter, defaultdict, namedtuple
 import random
 
@@ -8,30 +8,33 @@ class Chain_Factory:
     def __init__(self, markov_chain):
         self.markov_chain = markov_chain
 
-    def create_track(self):
-        track = mido.MidiTrack()
-        last_note = None
+    def to_create_new_midi_track(self):
+        track = md.MidiTrack()
+        last_processed_note = None
         for i in range(40):
-            new_note = self.markov_chain.get_next(last_note)
+            new_processing_note = self.markov_chain.get_next(
+                last_processed_note)
             message = [
-                mido.Message('note_on', note=new_note.note, velocity=127,
-                             time=0),
-                mido.Message('note_off', note=new_note.note, velocity=0,
-                             time=new_note.duration)
+                md.Message('note_on', note=new_processing_note.note, velocity=127,
+                           time=0),
+                md.Message('note_off', note=new_processing_note.note, velocity=0,
+                           time=new_processing_note.duration)
             ]
-            last_note = new_note
+            last_processed_note = new_processing_note
             track.extend(message)
         return track
 
-    def generate(self, filename):
+    def create_new_mid_output_file(self, name_of_output_mid_file):
 
-        midi = mido.midifiles.MidiFile()
-        track = self.create_track()
+        midi = md.midifiles.MidiFile()
+        track = self.to_create_new_midi_track()
 
         midi.tracks.append(track)
-        midi.save(filename)
+        midi.save(name_of_output_mid_file)
+
 
 Note = namedtuple('Note', ['note', 'duration'])
+
 
 class MarkovChain:
     def __init__(self):
@@ -74,55 +77,57 @@ class MarkovChain:
                     f.write(_col(to_notes[note]))
                 f.write('\n')
 
+
 class Parser:
 
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, name_of_mid_file):
+        self.name_of_mid_file = name_of_mid_file
         self.tempo = None
-        self.ticks_per_beat = None
+        self.ticks = None
         self.markov_chain = MarkovChain()
-        self._parse()
+        self.parsing_done_here()
 
-    def _parse(self):
-        midi = mido.MidiFile(self.filename)
-        self.ticks_per_beat = midi.ticks_per_beat
-        previous_chunk = []
-        current_chunk = []
+    def parsing_done_here(self):
+        midi = md.MidiFile(self.name_of_mid_file)
+        self.ticks = midi.ticks_per_beat
+        notes_already_processed = []
+        notes_currently_being_processed = []
         for track in midi.tracks:
-            for message in track:
-                if message.type == "set_tempo":
-                    self.tempo = message.tempo
-                elif message.type == "note_on":
-                    if message.time == 0:
-                        current_chunk.append(message.note)
+            for note in track:
+                if note.type == "set_tempo":
+                    self.tempo = note.tempo
+                elif note.type == "note_on":
+                    if note.time == 0:
+                        notes_currently_being_processed.append(note.note)
                     else:
-                        self._sequence(previous_chunk,
-                                       current_chunk,
-                                       message.time)
-                        previous_chunk = current_chunk
-                        current_chunk = []
+                        self.add_new_node_to_markov_chain(notes_already_processed,
+                                                          notes_currently_being_processed,
+                                                          note.time)
+                        notes_already_processed = notes_currently_being_processed
+                        notes_currently_being_processed = []
 
-    def _sequence(self, previous_chunk, current_chunk, duration):
-        for n1 in previous_chunk:
-            for n2 in current_chunk:
+    def add_new_node_to_markov_chain(self, notes_already_processed, notes_currently_being_processed, time):
+        for n1 in notes_already_processed:
+            for n2 in notes_currently_being_processed:
                 self.markov_chain.add(
-                    n1, n2, self._bucket_duration(duration))
+                    n1, n2, self.convert_ticks_to_ms(time))
 
-    def _bucket_duration(self, ticks):
-        ms = ((ticks / self.ticks_per_beat) * self.tempo) / 1000
+    def convert_ticks_to_ms(self, ticks):
+        ms = ((ticks / self.ticks) * self.tempo) / 1000
         return int(ms)
 
     def get_chain(self):
         return self.markov_chain
 
+
 if __name__ == "__main__":
-    chain = Parser("midi/river_flows.mid").get_chain()
+    main_markov_chain = Parser("midi/river_flows.mid").get_chain()
     # arg_no = 3
     # while arg_no < max_args + 1:
     #     new_chain = Parser(sys.argv[arg_no]).get_chain()
     #     chain.merge(new_chain)
     #     arg_no = arg_no + 1
     #     print('Generated markov chain')
-    factory = Chain_Factory(chain)
-    factory.generate("midi/out.mid")
-    chain.matrix()
+    factory = Chain_Factory(main_markov_chain)
+    factory.create_new_mid_output_file("midi/out.mid")
+    main_markov_chain.matrix()
