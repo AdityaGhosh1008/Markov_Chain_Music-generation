@@ -20,7 +20,7 @@ class Chain_Factory:
         for i in range(40):
             new_processing_note = self.markov_chain.get_next(
                 last_processed_note)
-            thisdic.update({j/10000:new_processing_note.note})
+            thisdic.update({j*0.003:new_processing_note.note})
             j=j+new_processing_note.duration
             message = [
                 md.Message('note_on', note=new_processing_note.note, velocity=127,
