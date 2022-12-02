@@ -33,6 +33,8 @@ class Chain_Factory:
         x = list(thisdic.keys())           
         y= list(thisdic.values())        
         plt.plot(x, y)
+        plt.ylabel("Note no.")
+        plt.xlabel("Time(seconds)")
         plt.savefig('graph.png')
         return track
 
