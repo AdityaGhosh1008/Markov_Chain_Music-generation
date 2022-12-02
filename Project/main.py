@@ -2,6 +2,10 @@ import mido as md
 from collections import Counter, defaultdict, namedtuple
 import random
 
+from matplotlib.backends.backend_pdf import PdfPages
+import numpy as np
+import matplotlib.pyplot as plt
+
 
 class Chain_Factory:
 
@@ -10,10 +14,14 @@ class Chain_Factory:
 
     def to_create_new_midi_track(self):
         track = md.MidiTrack()
+        thisdic=dict()
         last_processed_note = None
+        j=0
         for i in range(40):
             new_processing_note = self.markov_chain.get_next(
                 last_processed_note)
+            thisdic.update({j/10000:new_processing_note.note})
+            j=j+new_processing_note.duration
             message = [
                 md.Message('note_on', note=new_processing_note.note, velocity=127,
                            time=0),
@@ -22,6 +30,10 @@ class Chain_Factory:
             ]
             last_processed_note = new_processing_note
             track.extend(message)
+        x = list(thisdic.keys())           
+        y= list(thisdic.values())        
+        plt.plot(x, y)
+        plt.savefig('graph.png')
         return track
 
     def create_new_mid_output_file(self, name_of_output_mid_file):
@@ -159,6 +171,6 @@ if __name__ == "__main__":
     factory.create_new_mid_output_file("midi/out.mid")
     main_markov_chain.matrix()
     main_markov_chain.transition_matrix()
-    out_markov_chain = Parser("midi/out.mid").get_chain()
+    #out_markov_chain = Parser("midi/out.mid").get_chain()
     #out_markov_chain.matrix()
     #out_markov_chain.transition_matrix()
