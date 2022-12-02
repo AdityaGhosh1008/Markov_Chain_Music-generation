@@ -159,3 +159,6 @@ if __name__ == "__main__":
     factory.create_new_mid_output_file("midi/out.mid")
     main_markov_chain.matrix()
     main_markov_chain.transition_matrix()
+    out_markov_chain = Parser("midi/out.mid").get_chain()
+    #out_markov_chain.matrix()
+    #out_markov_chain.transition_matrix()
